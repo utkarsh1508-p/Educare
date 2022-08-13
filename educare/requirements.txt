@@ -1,0 +1,12 @@
+asgiref==3.5.2
+backports.zoneinfo==0.2.1
+Django==4.1
+gunicorn==20.1.0
+numpy==1.23.1
+opencv-python-headless==4.6.0.66
+Pillow==9.2.0
+python-decouple==3.6
+sqlparse==0.4.2
+tensorflow-cpu==2.9.1
+tzdata==2022.1
+whitenoise==6.2.0
