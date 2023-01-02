@@ -63,3 +63,11 @@
     border: none;
     font-size: 200%;
 }
+
+#c-prev{
+    background-color: black;
+}
+
+#c-next{
+    background-color: black;
+}
