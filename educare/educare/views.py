@@ -97,7 +97,8 @@ def alphabet(request):
             c_score = round(temp[0][word] * 100, 2)
             return render(request, 'alphabets.html', {"dataval": res, "accuracy": c_score})
 
-        except:
+        except Exception as e:
+            print(e)
             return render(request, 'alphabets.html')
 
     return render(request, 'alphabets.html')

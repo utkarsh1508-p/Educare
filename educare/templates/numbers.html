@@ -32,7 +32,7 @@
         #canvas{
             border : 5px solid black;
             background-color : black;
-            
+            touch-action: none;
         }
 
     </style>
@@ -138,9 +138,9 @@
         window.addEventListener('load', ()=>{
                 
             resize(); // Resizes the canvas once the window loads
-            document.addEventListener('mousedown', startPainting);
-            document.addEventListener('mouseup', stopPainting);
-            document.addEventListener('mousemove', sketch);
+            document.addEventListener('pointerdown', startPainting);
+            document.addEventListener('pointerup', stopPainting);
+            document.addEventListener('pointermove', sketch);
             window.addEventListener('resize', resize);
         });
             
