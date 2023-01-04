@@ -95,10 +95,14 @@ def alphabet(request):
                 res += str(dict[c + 1])
 
             c_score = round(temp[0][word] * 100, 2)
+
+            # delete temporary files
+            os.remove(BASE_DIR + f"/media/urldata.txt")
+            os.remove(BASE_DIR + f"/media/image.jpg")
+
             return render(request, 'alphabets.html', {"dataval": res, "accuracy": c_score})
 
-        except Exception as e:
-            print(e)
+        except:
             return render(request, 'alphabets.html')
 
     return render(request, 'alphabets.html')
@@ -180,9 +184,16 @@ def number(request):
 
             # confidence score
             c_score = round(temp[0][int(selectedword)] * 100, 2)
+
+            # delete temporary files
+            os.remove(BASE_DIR + f"/media/urldata.txt")
+            os.remove(BASE_DIR + f"/media/image.jpg")
+
             return render(request, 'numbers.html', {"dataval": res, "accuracy": c_score})
 
         except:
             return render(request, 'numbers.html')
+
+
 
     return render(request, 'numbers.html')
