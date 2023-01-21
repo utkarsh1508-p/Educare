@@ -1,8 +1,15 @@
 from django.shortcuts import render
 import os
-import tensorflow as tf
+from tensorflow.keras.models import load_model
 import cv2
 import numpy as np
+from PIL import Image
+from io import BytesIO
+from base64 import b64decode
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+new_model1 = load_model(BASE_DIR + "/media/Alphabets.h5", compile=False)
+new_model2 = load_model(BASE_DIR + '/media/Digits.h5', compile=False)
 
 
 def home(request):
@@ -10,12 +17,9 @@ def home(request):
 
 
 def alphabet(request):
+    global new_model1
+    global BASE_DIR
     if request.method == "POST":
-        from PIL import Image
-        from io import BytesIO
-        from base64 import b64decode
-
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         captured_image = request.POST['canvasData']
         selectedword = request.POST['selectedword']
         datatext = str(captured_image)
@@ -24,19 +28,12 @@ def alphabet(request):
             file.write(datatext)
 
         try:
-            file = open(completeName, 'rb')
-            byte = file.read()
-            file.close()
             im = Image.open(BytesIO(b64decode(datatext.split(',')[1])))
             im.save(BASE_DIR + "/media/image.jpg")
-
         except:
             pass
 
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
         try:
-            new_model = tf.keras.models.load_model(BASE_DIR + "/media/Alphabets.h5")
             image = cv2.imread(BASE_DIR + "/media/image.jpg")
             original = image.copy()
 
@@ -78,7 +75,7 @@ def alphabet(request):
 
                 x = x.reshape((1, 28, 28, 1))
                 x = x / 255
-                temp = new_model.predict(x)
+                temp = new_model1.predict(x)
                 classes.append(np.argmax(temp))
 
             dict = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J', 11: 'K',
@@ -86,7 +83,7 @@ def alphabet(request):
                     22: 'V', 23: 'W', 24: 'X', 25: 'Y', 26: 'Z', 27: 'a', 28: 'b', 29: 'd', 30: 'e', 31: 'f',
                     32: 'g', 33: 'h', 34: 'n', 35: 'q', 36: 'r', 37: 't'}
 
-            key_list = list(dict.keys())
+            # key_list = list(dict.keys())
             val_list = list(dict.values())
 
             word = val_list.index(selectedword)
@@ -109,12 +106,9 @@ def alphabet(request):
 
 
 def number(request):
+    global BASE_DIR
+    global new_model2
     if request.method == "POST":
-        from PIL import Image
-        from io import BytesIO
-        from base64 import b64decode
-
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         captured_image = request.POST['canvasData']
         selectedword = request.POST['selectedword']
         datatext = str(captured_image)
@@ -123,18 +117,12 @@ def number(request):
             file.write(datatext)
 
         try:
-            file = open(completeName, 'rb')
-            byte = file.read()
-            file.close()
             im = Image.open(BytesIO(b64decode(datatext.split(',')[1])))
             im.save(BASE_DIR + "/media/image.jpg")
         except:
             pass
 
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
         try:
-            new_model = tf.keras.models.load_model(BASE_DIR + '/media/Digits.h5')
             image = cv2.imread(BASE_DIR + "/media/image.jpg")
             original = image.copy()
 
@@ -175,7 +163,7 @@ def number(request):
                 x = np.concatenate((add_r, x), axis=0)
                 x = x.reshape((1, 28, 28, 1))
                 x = x / 255
-                temp = new_model.predict(x)
+                temp = new_model2.predict(x)
                 classes.append(np.argmax(temp))
 
             res = ''
@@ -193,7 +181,4 @@ def number(request):
 
         except:
             return render(request, 'numbers.html')
-
-
-
     return render(request, 'numbers.html')
