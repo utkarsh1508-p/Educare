@@ -1,15 +1,25 @@
 from django.shortcuts import render
 import os
-from tensorflow.keras.models import load_model
 import cv2
 import numpy as np
 from PIL import Image
 from io import BytesIO
 from base64 import b64decode
+import tensorflow.lite as tflite
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-new_model1 = load_model(BASE_DIR + "/media/Alphabets.h5", compile=False)
-new_model2 = load_model(BASE_DIR + '/media/Digits.h5', compile=False)
+
+# Interpreter for alphabets
+interpreter1 = tflite.Interpreter(model_path=r'D:\Educare\educare\media\Alphabets.tflite')
+interpreter1.allocate_tensors()
+input_details1 = interpreter1.get_input_details()
+output_details1 = interpreter1.get_output_details()
+
+# Interpreter for numbers
+interpreter2 = tflite.Interpreter(model_path=r'D:\Educare\educare\media\Digits.tflite')
+interpreter2.allocate_tensors()
+input_details2 = interpreter2.get_input_details()
+output_details2 = interpreter2.get_output_details()
 
 
 def home(request):
@@ -17,8 +27,6 @@ def home(request):
 
 
 def alphabet(request):
-    global new_model1
-    global BASE_DIR
     if request.method == "POST":
         captured_image = request.POST['canvasData']
         selectedword = request.POST['selectedword']
@@ -75,7 +83,12 @@ def alphabet(request):
 
                 x = x.reshape((1, 28, 28, 1))
                 x = x / 255
-                temp = new_model1.predict(x)
+                x = np.float32(x)
+
+                # Use the TensorFlow Lite Interpreter to set the input tensor and run inference
+                interpreter1.set_tensor(input_details1[0]['index'], x)
+                interpreter1.invoke()
+                temp = interpreter1.get_tensor(output_details1[0]['index'])
                 classes.append(np.argmax(temp))
 
             dict = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J', 11: 'K',
@@ -85,29 +98,27 @@ def alphabet(request):
 
             # key_list = list(dict.keys())
             val_list = list(dict.values())
-
             word = val_list.index(selectedword)
             res = ''
             for c in classes:
                 res += str(dict[c + 1])
 
+            # confidence score
             c_score = round(temp[0][word] * 100, 2)
 
             # delete temporary files
             os.remove(BASE_DIR + f"/media/urldata.txt")
             os.remove(BASE_DIR + f"/media/image.jpg")
-
             return render(request, 'alphabets.html', {"dataval": res, "accuracy": c_score})
 
-        except:
+        except Exception as e:
+            print(e)
             return render(request, 'alphabets.html')
 
     return render(request, 'alphabets.html')
 
 
 def number(request):
-    global BASE_DIR
-    global new_model2
     if request.method == "POST":
         captured_image = request.POST['canvasData']
         selectedword = request.POST['selectedword']
@@ -163,7 +174,12 @@ def number(request):
                 x = np.concatenate((add_r, x), axis=0)
                 x = x.reshape((1, 28, 28, 1))
                 x = x / 255
-                temp = new_model2.predict(x)
+                x = np.float32(x)
+
+                # Use the TensorFlow Lite Interpreter to set the input tensor and run inference
+                interpreter2.set_tensor(input_details2[0]['index'], x)
+                interpreter2.invoke()
+                temp = interpreter2.get_tensor(output_details2[0]['index'])
                 classes.append(np.argmax(temp))
 
             res = ''
@@ -176,7 +192,6 @@ def number(request):
             # delete temporary files
             os.remove(BASE_DIR + f"/media/urldata.txt")
             os.remove(BASE_DIR + f"/media/image.jpg")
-
             return render(request, 'numbers.html', {"dataval": res, "accuracy": c_score})
 
         except:
