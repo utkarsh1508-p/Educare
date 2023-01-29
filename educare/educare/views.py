@@ -10,13 +10,13 @@ import tensorflow.lite as tflite
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Interpreter for alphabets
-interpreter1 = tflite.Interpreter(model_path=r'D:\Educare\educare\media\Alphabets.tflite')
+interpreter1 = tflite.Interpreter(model_path=r'media\Alphabets.tflite')
 interpreter1.allocate_tensors()
 input_details1 = interpreter1.get_input_details()
 output_details1 = interpreter1.get_output_details()
 
 # Interpreter for numbers
-interpreter2 = tflite.Interpreter(model_path=r'D:\Educare\educare\media\Digits.tflite')
+interpreter2 = tflite.Interpreter(model_path=r'media\Digits.tflite')
 interpreter2.allocate_tensors()
 input_details2 = interpreter2.get_input_details()
 output_details2 = interpreter2.get_output_details()
