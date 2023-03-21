@@ -18,8 +18,13 @@ from django.urls import path
 from django.conf import settings
 from educare import views
 from django.conf.urls.static import static
+from django.views.generic.base import TemplateView
 
 urlpatterns = [
+    path('trademo/swagger', TemplateView.as_view(
+        template_name='swagger-ui.html',
+        extra_context={'schema_url': 'openapi-schema'}
+    ), name='swagger-ui'),
     path('admin/', admin.site.urls),
     path('', views.home),
     path('alphabets', views.alphabet, name='alphabet'),
